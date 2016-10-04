@@ -263,8 +263,8 @@ static int lttng_live_open_trace_read(const char *path)
 
 end_free:
 	g_hash_table_destroy(ctx->session->ctf_traces);
-	g_free(ctx->session);
 	g_free(ctx->session->streams);
+	g_free(ctx->session);
 	g_free(ctx);
 
 	if (lttng_live_should_quit()) {
