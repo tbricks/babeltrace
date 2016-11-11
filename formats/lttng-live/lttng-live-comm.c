@@ -57,6 +57,9 @@
 #include "lttng-live.h"
 #include "lttng-viewer-abi.h"
 
+#include "bthack_live_internal.h"
+
+
 #define ACTIVE_POLL_DELAY	100	/* ms */
 
 /*
@@ -626,6 +629,12 @@ int append_metadata(struct lttng_live_ctx *ctx,
 		fprintf(stderr, "[error] Appending metadata\n");
 		goto error;
 	}
+
+	ret = bthack_live_callback_declaration(ctx->bt_ctx, ret);
+	if (ret != 0) {
+		goto error;
+	}
+
 	ret = 0;
 
 error:
@@ -1458,6 +1467,12 @@ int add_one_trace(struct lttng_live_ctx *ctx,
 	}
 	trace->metadata_stream->metadata_len = 0;
 
+	ret = bthack_live_callback_declaration(bt_ctx, ret);
+	if (ret != 0) {
+		ret = -1;
+		goto end_free;
+	}
+
 	handle = (struct bt_trace_handle *) g_hash_table_lookup(
 			bt_ctx->trace_handles,
 			(gpointer) (unsigned long) ret);
@@ -1734,8 +1749,7 @@ int lttng_live_read(struct lttng_live_ctx *ctx)
 					/* End of trace */
 					break;
 				}
-				ret = sout->parent.event_cb(&sout->parent,
-						event->parent->stream);
+				ret = bthack_live_callback_event(event);
 				if (ret) {
 					fprintf(stderr, "[error] Writing "
 							"event failed.\n");
