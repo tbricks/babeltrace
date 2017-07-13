@@ -24,6 +24,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -117,6 +118,7 @@ int lttng_live_connect_viewer(struct lttng_live_ctx *ctx)
 	struct hostent *host;
 	struct sockaddr_in server_addr;
 	int ret;
+	int optval;
 
 	if (lttng_live_should_quit()) {
 		ret = -1;
@@ -143,6 +145,11 @@ int lttng_live_connect_viewer(struct lttng_live_ctx *ctx)
 	if (connect(ctx->control_sock, (struct sockaddr *) &server_addr,
 				sizeof(struct sockaddr)) == -1) {
 		perror("Connect");
+		goto error;
+	}
+	optval = 1;
+	if (setsockopt(ctx->control_sock, SOL_TCP, TCP_NODELAY, &optval, sizeof(optval))) {
+		perror("Setsockopt(TCP_NODELAY)");
 		goto error;
 	}
 
