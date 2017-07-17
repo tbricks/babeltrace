@@ -103,12 +103,33 @@ ssize_t lttng_live_recv(int fd, void *buf, size_t len)
 }
 
 static
-ssize_t lttng_live_send(int fd, const void *buf, size_t len)
+ssize_t lttng_live_send1(int fd, const void *buf_hdr, size_t len_hdr)
 {
 	ssize_t ret;
+	struct iovec iov[1] = {
+		/* const cast buf argument */
+		{ (void *) buf_hdr, len_hdr }
+	};
 
 	do {
-		ret = bt_send_nosigpipe(fd, buf, len);
+		ret = bt_writev_nosigpipe(fd, iov, 1);
+	} while (ret < 0 && errno == EINTR);
+	return ret;
+}
+
+static
+ssize_t lttng_live_send2(int fd, const void *buf_hdr, size_t len_hdr,
+		const void *buf_body, size_t len_body)
+{
+	ssize_t ret;
+	struct iovec iov[2] = {
+		/* const cast buf arguments */
+		{ (void *) buf_hdr, len_hdr },
+		{ (void *) buf_body, len_body }
+	};
+
+	do {
+		ret = bt_writev_nosigpipe(fd, iov, 2);
 	} while (ret < 0 && errno == EINTR);
 	return ret;
 }
@@ -184,19 +205,14 @@ int lttng_live_establish_connection(struct lttng_live_ctx *ctx)
 	connect.minor = htobe32(LTTNG_LIVE_MINOR);
 	connect.type = htobe32(LTTNG_VIEWER_CLIENT_COMMAND);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&connect, sizeof(connect));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending CONNECT request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &connect, sizeof(connect));
-	if (ret_len < 0) {
-		perror("[error] Error sending version");
-		goto error;
-	}
-	assert(ret_len == sizeof(connect));
+	assert(ret_len == sizeof(cmd) + sizeof(connect));
 
 	ret_len = lttng_live_recv(ctx->control_sock, &connect, sizeof(connect));
 	if (ret_len == 0) {
@@ -320,9 +336,9 @@ int lttng_live_list_sessions(struct lttng_live_ctx *ctx, const char *path)
 	cmd.data_size = htobe64((uint64_t) 0);
 	cmd.cmd_version = htobe32(0);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send1(ctx->control_sock, &cmd, sizeof(cmd));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending LIST_SESSIONS request");
 		goto error;
 	}
 	assert(ret_len == sizeof(cmd));
@@ -451,19 +467,14 @@ int lttng_live_attach_session(struct lttng_live_ctx *ctx, uint64_t id)
 	// rq.seek = htobe32(LTTNG_VIEWER_SEEK_BEGINNING);
 	rq.seek = htobe32(LTTNG_VIEWER_SEEK_LAST);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&rq, sizeof(rq));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending ATTACH_SESSION request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &rq, sizeof(rq));
-	if (ret_len < 0) {
-		perror("[error] Error sending attach request");
-		goto error;
-	}
-	assert(ret_len == sizeof(rq));
+	assert(ret_len == sizeof(cmd) + sizeof(rq));
 
 	ret_len = lttng_live_recv(ctx->control_sock, &rp, sizeof(rp));
 	if (ret_len == 0) {
@@ -686,19 +697,14 @@ retry:
 	rq.offset = htobe64(offset);
 	rq.len = htobe32(len);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&rq, sizeof(rq));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending GET_PACKET request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &rq, sizeof(rq));
-	if (ret_len < 0) {
-		perror("[error] Error sending get_data_packet request");
-		goto error;
-	}
-	assert(ret_len == sizeof(rq));
+	assert(ret_len == sizeof(cmd) + sizeof(rq));
 
 	ret_len = lttng_live_recv(ctx->control_sock, &rp, sizeof(rp));
 	if (ret_len == 0) {
@@ -833,19 +839,14 @@ int get_one_metadata_packet(struct lttng_live_ctx *ctx,
 	cmd.data_size = htobe64((uint64_t) sizeof(rq));
 	cmd.cmd_version = htobe32(0);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&rq, sizeof(rq));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending GET_METADATA request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &rq, sizeof(rq));
-	if (ret_len < 0) {
-		perror("[error] Error sending get_metadata request");
-		goto error;
-	}
-	assert(ret_len == sizeof(rq));
+	assert(ret_len == sizeof(cmd) + sizeof(rq));
 
 	ret_len = lttng_live_recv(ctx->control_sock, &rp, sizeof(rp));
 	if (ret_len == 0) {
@@ -1016,19 +1017,14 @@ retry:
 		ret = -1;
 		goto end;
 	}
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&rq, sizeof(rq));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending GET_NEXT_INDEX request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &rq, sizeof(rq));
-	if (ret_len < 0) {
-		perror("[error] Error sending get_next_index request");
-		goto error;
-	}
-	assert(ret_len == sizeof(rq));
+	assert(ret_len == sizeof(cmd) + sizeof(rq));
 
 	ret_len = lttng_live_recv(ctx->control_sock, rp, sizeof(*rp));
 	if (ret_len == 0) {
@@ -1351,9 +1347,9 @@ int lttng_live_create_viewer_session(struct lttng_live_ctx *ctx)
 	cmd.data_size = htobe64((uint64_t) 0);
 	cmd.cmd_version = htobe32(0);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send1(ctx->control_sock, &cmd, sizeof(cmd));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending CREATE_SESSION request");
 		goto error;
 	}
 	assert(ret_len == sizeof(cmd));
@@ -1550,19 +1546,14 @@ int lttng_live_get_new_streams(struct lttng_live_ctx *ctx, uint64_t id)
 	memset(&rq, 0, sizeof(rq));
 	rq.session_id = htobe64(id);
 
-	ret_len = lttng_live_send(ctx->control_sock, &cmd, sizeof(cmd));
+	ret_len = lttng_live_send2(ctx->control_sock,
+		&cmd, sizeof(cmd),
+		&rq, sizeof(rq));
 	if (ret_len < 0) {
-		perror("[error] Error sending cmd");
+		perror("[error] Error sending GET_NEW_STREAMS request");
 		goto error;
 	}
-	assert(ret_len == sizeof(cmd));
-
-	ret_len = lttng_live_send(ctx->control_sock, &rq, sizeof(rq));
-	if (ret_len < 0) {
-		perror("[error] Error sending get_new_streams request");
-		goto error;
-	}
-	assert(ret_len == sizeof(rq));
+	assert(ret_len == sizeof(cmd) + sizeof(rq));
 
 	ret_len = lttng_live_recv(ctx->control_sock, &rp, sizeof(rp));
 	if (ret_len == 0) {

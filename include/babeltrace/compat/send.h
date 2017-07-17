@@ -41,8 +41,10 @@
 #include <signal.h>
 #endif /* !MSG_NOSIGNAL */
 
+#include <sys/uio.h>
+
 static inline
-ssize_t bt_send_nosigpipe(int fd, const void *buffer, size_t size)
+ssize_t bt_writev_nosigpipe(int fd, const struct iovec *iov, int iovcnt)
 {
 	ssize_t sent;
 
@@ -86,7 +88,8 @@ ssize_t bt_send_nosigpipe(int fd, const void *buffer, size_t size)
 	}
 #endif /* !MSG_NOSIGNAL */
 
-	sent = send(fd, buffer, size, 0);
+	/* const cast iovec argument */
+	sent = writev(fd, (struct iovec *) iov, iovcnt);
 
 #if !defined(MSG_NOSIGNAL)
 	saved_err = errno;
