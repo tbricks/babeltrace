@@ -41,6 +41,22 @@ struct bt_ctf_event;
 
 /* Itiviti inventions */
 
+/* Define enum identical to lttng_viewer_seek since header file
+ * `lttng-viewer-abi.h` is not one of public Babeltrace headers.
+ */
+enum bthack_live_seek {
+		BTHACK_LIVE_SEEK_BEGIN = 1,
+		BTHACK_LIVE_SEEK_LAST = 2,
+};
+
+enum bthack_live_seek
+bthack_live_seek_get(void);
+
+void
+bthack_live_seek_set(
+		enum bthack_live_seek new_seek);
+
+
 extern int
 (*bthack_live_callback_declaration)(
 		struct bt_context *,
