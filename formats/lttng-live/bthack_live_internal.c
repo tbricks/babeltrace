@@ -31,6 +31,35 @@
 #include <stdlib.h>
 
 
+static enum bthack_live_seek s_bthack_live_seek = BTHACK_LIVE_SEEK_LAST;
+
+
+enum bthack_live_seek
+bthack_live_seek_get(void)
+{
+	return s_bthack_live_seek;
+}
+
+
+void
+bthack_live_seek_set(
+		enum bthack_live_seek new_seek)
+{
+	s_bthack_live_seek = new_seek;
+}
+
+
+enum lttng_viewer_seek
+bthack_live_seek_get_internal(void)
+{
+	switch (s_bthack_live_seek) {
+		case BTHACK_LIVE_SEEK_BEGIN: return LTTNG_VIEWER_SEEK_BEGINNING;
+		case BTHACK_LIVE_SEEK_LAST:  return LTTNG_VIEWER_SEEK_LAST;
+		default:                     abort();
+	}
+}
+
+
 int
 (*bthack_live_callback_declaration)(
 		struct bt_context *,

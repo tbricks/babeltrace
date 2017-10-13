@@ -31,4 +31,10 @@
 
 #include <babeltrace/bthack_live.h>
 
+#include <stdint.h> // XXX: `lttng-viewer-abi.h` should have included that
+#include "lttng-viewer-abi.h"
+
+enum lttng_viewer_seek
+bthack_live_seek_get_internal(void);
+
 #endif /* BABELTRACE_BTHACK_LIVE_INTERNAL_H */
