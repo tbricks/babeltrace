@@ -5,6 +5,7 @@ SUBDIRS = types metadata writer .
 lib_LTLIBRARIES = libbabeltrace-ctf.la
 
 libbabeltrace_ctf_la_SOURCES = \
+	bthack_ctf_internal.c \
 	ctf.c \
 	events.c \
 	iterator.c \
