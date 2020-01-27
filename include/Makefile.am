@@ -1,4 +1,5 @@
 babeltraceinclude_HEADERS = \
+	babeltrace/bthack_ctf.h \
 	babeltrace/bthack_live.h \
 	babeltrace/babeltrace.h \
 	babeltrace/format.h \
