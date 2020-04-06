@@ -58,3 +58,17 @@ bthack_ctf_fields_decl_from_event_decl(const struct bt_ctf_event_decl * decl)
 			decl->parent.fields_decl;
 	return (const struct bthack_ctf_persistent_declaration *) d;
 }
+
+
+const char *
+bthack_ctf_event_hostname(const struct bt_ctf_event * event)
+{
+	assert(NULL != event);
+	assert(NULL != event->parent);
+	assert(NULL != event->parent->stream);
+	assert(NULL != event->parent->stream->stream_class);
+	assert(NULL != event->parent->stream->stream_class->trace);
+	assert(NULL != event->parent->stream->stream_class->trace->env.hostname);
+
+	return event->parent->stream->stream_class->trace->env.hostname;
+}
