@@ -48,6 +48,9 @@ bthack_ctf_fields_decl_from_event(const struct bt_ctf_event *);
 const struct bthack_ctf_persistent_declaration *
 bthack_ctf_fields_decl_from_event_decl(const struct bt_ctf_event_decl *);
 
+const char *
+bthack_ctf_event_hostname(const struct bt_ctf_event *);
+
 
 #ifdef __cplusplus
 }
