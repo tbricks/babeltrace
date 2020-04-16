@@ -8,6 +8,7 @@ noinst_HEADERS = \
 
 libbabeltrace_lttng_live_la_SOURCES = \
 	bthack_live_internal.c \
+	bthack_live_internal.h \
 	lttng-live-plugin.c lttng-live-comm.c
 
 # Request that the linker keeps all static libraries objects.
