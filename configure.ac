@@ -322,24 +322,9 @@ AC_CONFIG_FILES([
 	formats/ctf/metadata/Makefile
 	formats/ctf/writer/Makefile
 	formats/ctf/ir/Makefile
-	converter/Makefile
-	doc/Makefile
 	lib/Makefile
 	lib/prio_heap/Makefile
 	include/Makefile
-	bindings/Makefile
-	bindings/python/Makefile
-	bindings/python/setup.py
-	bindings/python/babeltrace/Makefile
-	bindings/python/babeltrace/__init__.py
-	tests/Makefile
-	tests/bin/Makefile
-	tests/bin/intersection/Makefile
-	tests/lib/Makefile
-	tests/utils/Makefile
-	tests/utils/tap/Makefile
-	extras/Makefile
-	extras/valgrind/Makefile
 	babeltrace.pc
 	babeltrace-ctf.pc
 ])
