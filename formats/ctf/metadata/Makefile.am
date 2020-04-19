@@ -37,11 +37,4 @@ if BABELTRACE_BUILD_WITH_MINGW
 libctf_ast_la_LIBADD += -lrpcrt4 -lintl -liconv -lole32 -lpopt
 endif
 
-noinst_PROGRAMS = ctf-parser-test
-ctf_parser_test_SOURCES = ctf-parser-test.c
-ctf_parser_test_CFLAGS = $(AM_CFLAGS) -I$(builddir)
-ctf_parser_test_LDADD = \
-		libctf-parser.la \
-		libctf-ast.la
-
 CLEANFILES = ctf-lexer.c ctf-parser.c ctf-parser.h ctf-parser.output
