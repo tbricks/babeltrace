@@ -2,9 +2,9 @@ SUBDIRS = prio_heap .
 
 AM_CFLAGS = $(PACKAGE_CFLAGS) -I$(top_srcdir)/include
 
-lib_LTLIBRARIES = libbabeltrace.la
+lib_LTLIBRARIES = libbabeltrace1tb.la
 
-libbabeltrace_la_SOURCES = babeltrace.c \
+libbabeltrace1tb_la_SOURCES = babeltrace.c \
 			   iterator.c \
 			   context.c \
 			   trace-handle.c \
@@ -12,7 +12,7 @@ libbabeltrace_la_SOURCES = babeltrace.c \
 			   registry.c \
 			   error.c
 
-libbabeltrace_la_LDFLAGS = \
+libbabeltrace1tb_la_LDFLAGS = \
 	$(LT_NO_UNDEFINED) -version-info $(BABELTRACE_LIBRARY_VERSION)
 
 if ENABLE_DEBUG_INFO
@@ -24,10 +24,10 @@ libdebug_info_la_SOURCES = debug-info.c \
 			  crc32.c \
 			  utils.c
 libdebug_info_la_LDFLAGS = -lelf -ldw
-libdebug_info_la_LIBADD = libbabeltrace.la
+libdebug_info_la_LIBADD = libbabeltrace1tb.la
 endif
 
-libbabeltrace_la_LIBADD = \
+libbabeltrace1tb_la_LIBADD = \
 	prio_heap/libprio_heap.la \
-	$(top_builddir)/types/libbabeltrace_types.la \
+	$(top_builddir)/types/libbabeltrace1tb_types.la \
 	$(top_builddir)/compat/libcompat.la

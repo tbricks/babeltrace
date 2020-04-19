@@ -1,21 +1,21 @@
 AM_CFLAGS = $(PACKAGE_CFLAGS) -I$(top_srcdir)/include -I$(top_builddir)/include -I$(top_srcdir)
 
-lib_LTLIBRARIES = libbabeltrace-lttng-live.la
+lib_LTLIBRARIES = libbabeltrace1tb-lttng-live.la
 
 noinst_HEADERS = \
 		 lttng-viewer-abi.h \
 		 lttng-live.h
 
-libbabeltrace_lttng_live_la_SOURCES = \
+libbabeltrace1tb_lttng_live_la_SOURCES = \
 	bthack_live_internal.c \
 	bthack_live_internal.h \
 	lttng-live-plugin.c lttng-live-comm.c
 
 # Request that the linker keeps all static libraries objects.
-libbabeltrace_lttng_live_la_LDFLAGS = \
+libbabeltrace1tb_lttng_live_la_LDFLAGS = \
 	$(LT_NO_UNDEFINED) \
 	$(LD_NO_AS_NEEDED) -version-info $(BABELTRACE_LIBRARY_VERSION)
 
-libbabeltrace_lttng_live_la_LIBADD = \
-	$(top_builddir)/lib/libbabeltrace.la \
-	$(top_builddir)/formats/ctf/libbabeltrace-ctf.la
+libbabeltrace1tb_lttng_live_la_LIBADD = \
+	$(top_builddir)/lib/libbabeltrace1tb.la \
+	$(top_builddir)/formats/ctf/libbabeltrace1tb-ctf.la

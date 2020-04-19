@@ -11,14 +11,14 @@ libtestcommon_a_SOURCES = common.c common.h
 # side-effects as dead code.
 test_seek_LDFLAGS = $(LD_NO_AS_NEEDED)
 test_seek_LDADD = $(LIBTAP) libtestcommon.a \
-	$(top_builddir)/lib/libbabeltrace.la \
-	$(top_builddir)/formats/ctf/libbabeltrace-ctf.la
+	$(top_builddir)/lib/libbabeltrace1tb.la \
+	$(top_builddir)/formats/ctf/libbabeltrace1tb-ctf.la
 
 test_bitfield_LDADD = $(LIBTAP) libtestcommon.a
 
 test_ctf_writer_LDADD = $(LIBTAP) \
-	$(top_builddir)/lib/libbabeltrace.la \
-	$(top_builddir)/formats/ctf/libbabeltrace-ctf.la
+	$(top_builddir)/lib/libbabeltrace1tb.la \
+	$(top_builddir)/formats/ctf/libbabeltrace1tb-ctf.la
 
 noinst_PROGRAMS = test_seek test_bitfield test_ctf_writer
 
@@ -33,13 +33,13 @@ check_SCRIPTS = test_seek_big_trace \
 if ENABLE_DEBUG_INFO
 test_dwarf_LDFLAGS = -static
 test_dwarf_LDADD = $(LIBTAP) \
-	$(top_builddir)/lib/libbabeltrace.la \
+	$(top_builddir)/lib/libbabeltrace1tb.la \
 	$(top_builddir)/lib/libdebug-info.la
 test_dwarf_SOURCES = test_dwarf.c
 
 test_bin_info_LDFLAGS = -static
 test_bin_info_LDADD = $(LIBTAP) \
-	$(top_builddir)/lib/libbabeltrace.la \
+	$(top_builddir)/lib/libbabeltrace1tb.la \
 	$(top_builddir)/lib/libdebug-info.la
 test_bin_info_SOURCES = test_bin_info.c
 

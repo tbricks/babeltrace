@@ -1,8 +1,8 @@
 AM_CFLAGS = $(PACKAGE_CFLAGS) -I$(top_srcdir)/include
 
-noinst_LTLIBRARIES = libbabeltrace_types.la
+noinst_LTLIBRARIES = libbabeltrace1tb_types.la
 
-libbabeltrace_types_la_SOURCES = \
+libbabeltrace1tb_types_la_SOURCES = \
 	array.c \
 	enum.c \
 	float.c \
@@ -13,4 +13,4 @@ libbabeltrace_types_la_SOURCES = \
 	variant.c \
 	types.c
 
-libbabeltrace_types_la_LDFLAGS = $(LT_NO_UNDEFINED)
+libbabeltrace1tb_types_la_LDFLAGS = $(LT_NO_UNDEFINED)
